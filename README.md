@@ -28,45 +28,45 @@ Este proyecto rompe esa barrera unificando las fuentes oficiales del Instituto N
 Para garantizar la integridad, consistencia y correcto tipado de fuentes de datos heterogéneas que venían en formatos dispersos (CSV y XLSX), se diseñó un pipeline robusto de ingeniería de datos estructurado bajo el patrón de arquitectura Medallion.
 
 ```text
-  [ FUENTES DE DATOS ]
-  ↳ INE: Inflación (Índice de Precios de Consumo - IPC)
-  ↳ INE: Renta Media Anual Regional por Hogar
-  ↳ INE: Demografía de Población Joven (16-30 años)
-          │
-          ▼
-┌────────────────────────────────────────────────────────┐
-│ 🥉 CAPA BRONZE (Ingesta Raw)                           │
-│    - Almacenamiento de archivos crudos sin procesar.   │
-│    - Preservación del estado original de la extracción. │
-└────────────────────────────────────────┬───────────────┘
-                                         │ (Limpieza y Tipado)
-                                         ▼
-┌────────────────────────────────────────────────────────┐
-│ 🥈 CAPA SILVER (Enriquecimiento y Limpieza)            │
-│    - Tratamiento de strings y codificaciones nulas.     │
-│    - Normalización de nombres de las CC.AA.            │
-│    - Filtrado temporal y conversión a tipos float/int. │
-└────────────────────────────────────────┬───────────────┘
-                                         │ (Feature Engineering)
-                                         ▼
-┌────────────────────────────────────────────────────────┐
-│ 🥇 CAPA GOLD (Dataset Maestro Negocio)                 │
-│    - Unificación temporal por campos clave (Año, CCAA). │
-│    - Feature Engineering: Renta Ajustada por IPC.      │
-│    - Archivo optimizado de consumo: `house_data_gold.csv`│
-└────────────────────────────────────────────────────────┘
+       [ 🥉 CAPA BRONZE - Ingesta Raw ]
+       ├── 1. IPC_Medias_Anuales_2002-2025.csv
+       ├── 2. IPV_2007-2024.csv
+       ├── 3. Poblacion_CCAA_Edades_2003-2022.csv
+       ├── 4. Renta_Media_CCAA_2008-2023.csv
+       └── 5. Renta_España-UE.csv
+                    │
+                    ▼ (Estandarización y Filtrado Técnico)
+       [ 🥈 CAPA SILVER - Limpieza y Modelado ]
+       ├── Normalización de encodado (Latin-1) y renombrado de cabeceras.
+       ├── Pivoteo de tablas temporales y extracción de años (2008-2022).
+       ├── Limpieza de strings (stripping) y normalización regional de CC.AA.
+       └── Casteo de tipos: Limpieza de separadores de miles/decimales y cast a Float/Int.
+                    │
+                    ▼ (Unificación y Feature Engineering)
+       [ 🥇 CAPA GOLD - Dataset Maestro Negocio ]
+       ├── Unión por campos clave (Año, CCAA) formando el Dataset Maestro.
+       ├── Creación de Variables Sintéticas (Métricas de Negocio e Inercia).
+       └── Archivo optimizado de consumo: `house_data_gold.csv`
+```
 
 El resultado de esta arquitectura es una tabla maestra de negocio optimizada que alimenta de manera directa tanto los cuadros de mando como las fases de entrenamiento del modelo:
 
-| Variable | Tipo de Dato | Capa de Origen | Descripción Conceptual |
+El resultado de esta arquitectura es una tabla maestra de negocio optimizada que alimenta de manera directa tanto los cuadros de mando como las fases de entrenamiento del modelo:
+
+| Variable | Tipo de Dato | Descripción | Origen / Método de Cálculo |
 | :--- | :--- | :--- | :--- |
-| **Año** | Integer (Index) | Silver | Clave temporal anual del registro |
-| **CCAA** | String (Categórico) | Silver | Región geográfica (Comunidad Autónoma) de España |
-| **Indice_IPC** | Float | Silver | Métrica de inflación oficial base 100 del INE |
-| **Renta_Media** | Float | Silver | Ingresos medios anuales por hogar en la región |
-| **Renta_Ajustada_IPC** | Float | Gold (Calculada) | Feature Engineering: Capacidad adquisitiva real deflactada |
-| **Pct_Pob_Joven** | Float | Silver | Porcentaje demográfico de población en edad de emancipación |
-| **Precio_Vivienda_IPV** | Float (Target) | Silver | Índice oficial (IPV) que mide la evolución de precios |
+| **CCAA** | Categórica | Comunidad Autónoma analizada (17 regiones de España). | Registro Original (INE) |
+| **Año** | Temporal / Int | Año correspondiente a la serie histórica (2008-2022). | Registro Original (INE) |
+| **Indice_IPC** | Numérica (Float) | Índice de Precios al Consumo. Mide la inflación general. | Registro Original (INE) |
+| **Precio_Vivienda_IPV** | Numérica (Float) | Índice de Precios de la Vivienda. Variable objetivo del modelo. | Registro Original (INE) |
+| **Renta_Media** | Numérica (Int) | Capacidad salarial media anual por hogar en la región. | Registro Original (INE) |
+| **Pob_Adulta** | Numérica (Float) | Volumen de población en edad laboral y senior combinada. | Registro Original (INE) |
+| **Pob_Joven** | Numérica (Float) | Volumen de población joven (rango de emancipación). | Registro Original (INE) |
+| **Pob_Senior** | Numérica (Float) | Volumen de población en edad de jubilación. | Registro Original (INE) |
+| **Ratio_Esfuerzo** | Numérica (Float) | Relación de accesibilidad inmobiliaria (Precio Vivienda / Renta). | Procesado (Capa Gold) |
+| **Renta_Ajustada_IPC** | Numérica (Float) | Capacidad de compra real descontando el impacto de la inflación. | Feature Engineering ((Renta_Media * 100) / Indice_IPC) |
+| **Pct_Pob_Joven** | Numérica (Float) | Porcentaje que representa la población joven sobre el total regional. | Feature Engineering (Pob_Joven / Población Total) |
+| **IPV_Anterior** | Numérica (Float) | Histórico de inercia del precio del suelo del año previo (Lag 1). | Feature Engineering (groupby(CCAA).shift(1)) |
 
 ---
 
@@ -110,7 +110,7 @@ Se seleccionó **`HistGradientBoostingRegressor`** (un modelo basado en conjunto
 
 ## 6. Tecnologías Utilizadas
 * **Ingeniería de Datos y Modelado:** Python 3.x (`pandas`, `numpy`, `scikit-learn`, `joblib`).
-* **Visualización de Datos:** Plotly (Gráficos interactivos y dinámicos embebidos en el simulador).
+* **Visualización de Datos:** Plotly, Seaborn, Matplotlib (Gráficos interactivos y dinámicos embebidos en el simulador).
 * **Entorno Analítico BI:** Power BI Desktop.
 * **Interfaz de Usuario Web:** Streamlit (Desarrollo del dashboard reactivo e interactivo para el usuario final).
 
