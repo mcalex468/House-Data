@@ -115,5 +115,62 @@ Se seleccionó **`HistGradientBoostingRegressor`** (un modelo basado en conjunto
 * **Interfaz de Usuario Web:** Streamlit (Desarrollo del dashboard reactivo e interactivo para el usuario final).
 
 ---
+## 7. Manuales 
 
-   
+## 7.1 Manual de Instalación
+
+El despliegue de la solución se compone de tres bloques secuenciales que cubren desde el procesamiento de los datos científicos hasta la visualización y la simulación interactiva.
+
+### 1. Requisitos Previos e Ingesta Histórica (Jupyter Notebook)
+El entorno base se apoya en la distribución **Anaconda**. Para visualizar y ejecutar el pipeline científico completo, el analista debe seguir estos pasos:
+1. Iniciar **Anaconda Navigator**.
+2. Lanzar **Jupyter Notebook**.
+3. Abrir el cuaderno de trabajo `HouseData.ipynb`.
+4. Ejecutar secuencialmente todas sus celdas seleccionando **Cell > Run All** (o *Run All* desde la barra de herramientas).
+
+Al hacer esto, el script realiza de manera automática:
+* La limpieza exhaustiva de los datos crudos.
+* El cálculo de variables e indicadores clave de la **Capa Oro**, guardando el archivo resultante `house_data_gold.csv`.
+* El entrenamiento del modelo de Inteligencia Artificial, exportando inmediatamente después el archivo binario serializado `modelo_ipv_v2.pkl`.
+
+### 2. Explotación del Dashboard (Power BI)
+La capa analítica descriptiva se encuentra totalmente consolidada en el archivo `DashboardHouseData.pbix`. 
+* **Requisito previo:** El usuario debe contar con la aplicación **Power BI Desktop** (disponible de forma 100% gratuita en la *Microsoft Store* o en la web oficial de Microsoft).
+* **Ejecución:** Una vez instalada la aplicación, basta con realizar doble clic sobre el archivo `DashboardHouseData.pbix` para que el cuadro de mandos interactivo se despliegue localmente, quedando listo para su exploración mediante los segmentadores y filtros regionales.
+
+### 3. Despliegue del Servidor Predictivo (Streamlit)
+Al ser una solución web interactiva en tiempo real, esta es la única herramienta que requiere el uso de la interfaz de comandos o consola. 
+1. Abra **Anaconda Prompt** (o la Terminal del sistema).
+2. Navegue hasta el directorio raíz del proyecto e instale las dependencias ejecutando los siguientes comandos:
+
+## 7.2 Manual de Usuario (Guía de Explotación y Análisis)
+
+La arquitectura de análisis está estructurada en 3 niveles de profundidad incremental para permitir una explotación analítica completa:
+
+### Nivel 1: El Origen (Jupyter Notebooks)
+* **Qué es:** El laboratorio científico donde se "cocinan" los datos.
+* **Para quién:** Usuarios técnicos o auditores que quieran ver cómo se pasó de los datos sucios del INE a la Capa Oro.
+* **Cómo se usa:** Se ejecutan las celdas de código para observar el *Storytelling*, pasando rigurosamente por las 5 fases:
+  1. Ingesta
+  2. Limpieza
+  3. Consolidación
+  4. EDA (Visualizaciones y Análisis Exploratorio de Datos)
+  5. Modelo
+
+### Nivel 2: El Diagnóstico (Dashboard Power BI)
+* **Qué es:** La herramienta de análisis histórico encargada de evaluar el pasado y el presente.
+* **Objetivo:** Entender "qué ha pasado" hasta ahora en el mercado inmobiliario.
+* **Cómo se usa:**
+  * **Filtros:** Selecciona tu Comunidad Autónoma y el año en los menús desplegables.
+  * **Mapa de Burbujas:** Mira el tamaño de la burbuja para entender la presión del precio en cada zona.
+  * **Gráfico de Dispersión:** Busca puntos "fuera de la línea" para detectar de forma ágil dónde la vivienda es demasiado cara respecto a la renta (detección de zonas tensionadas).
+
+### Nivel 3: El Oráculo (App Streamlit)
+* **Qué es:** La herramienta de simulación interactiva orientada al futuro.
+* **Objetivo:** Ver "qué pasaría si..." cambian las condiciones económicas del entorno.
+* **Cómo se usa:**
+  * **Entrada de datos:** Mueve los deslizadores (*sliders*) para cambiar los valores del IPC o la Renta.
+  * **Predicción:** Pulsa el botón para que la IA calcule instantáneamente el nuevo precio estimado de la vivienda.
+  * **Semáforo de Riesgo:** El sistema categoriza el escenario mediante códigos de color visuales:
+    * 🟢 **Verde:** Mercado respira, estabilización del IPV.
+    * 🔴 **Rojo:** Riesgo de exclusión financiera, aumento crítico del IPV.
