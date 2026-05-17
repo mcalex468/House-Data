@@ -115,7 +115,7 @@ Se seleccionó **`HistGradientBoostingRegressor`** (un modelo basado en conjunto
 * **Interfaz de Usuario Web:** Streamlit (Desarrollo del dashboard reactivo e interactivo para el usuario final).
 
 ---
-## 7. Manuales 
+## 7. Ejecución del Entorno
 
 ## 7.1 Manual de Instalación
 
