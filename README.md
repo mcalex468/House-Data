@@ -1,4 +1,4 @@
-# 🏢 Proyecto Final de Máster: IA Predictora del Índice de Precios de Vivienda (IPV)
+# 🏢 Proyecto Final de Máster: Analisis Histórico (Power BI) & IA Predictora del Índice de Precios de Vivienda (IPV)
 
 Este repositorio contiene el Trabajo de Fin de Máster (TFM) desarrollado para el **Máster en Inteligencia Artificial y Big Data**. El proyecto aborda la problemática social del acceso a la vivienda y la emancipación mediante una solución tecnológica integral que fusiona la ingeniería de datos masivos, el análisis analítico clásico del pasado y la predicción prospectiva del futuro impulsada por Machine Learning.
 
